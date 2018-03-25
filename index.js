@@ -6,7 +6,8 @@ require('dotenv').config()
 
 var games = {}
 
-var Game = function(word){
+var Game = function(word, id){
+  this._id = id
   this.solution = word
   this.result = new Array(word.length)
   this.wrongs = []
@@ -42,25 +43,33 @@ app.get('/', function (req, res) {
   res.send('Hello World!')
 })
 
-// new game, get request
-  // starts new game by getting a random word which will be challengeWord
-  // returns json with string of zeros with the same length which is currentResult
 app.get('/newgame', function(req, res) {
-  unirest.get("https://wordsapiv1.p.mashape.com/words?random=true&letterpattern=^[A-z]+$")
+  unirest.get("https://wordsapiv1.p.mashape.com/words?frequencymin=8&random=true")
   .header("X-Mashape-Key", process.env.WORDS_API)
   .header("Accept", "application/json")
   .end(function (result) {
     console.log(result.status, result.headers, result.body);
-    res.send(result.body.word)
+    var id = Date.now()
+    var newGame = new Game(result.body.word, id)
+    games[id] = newGame
+    var gameResult = Object.assign({}, newGame, { solution: undefined, checkGuess: undefined })
+    res.send(gameResult)
   });
 })
 
 
-// guess, post request
-  // takes a letter and checks if challengeWord contains it
+// guess, put request
+  // takes a letter game id, checks if challengeWord contains it
   // returns json with updated string currentResult if a correct guess
   // if incorrect guess and guessesLeft > 0, decrements guessesLeft returns 204 status code
   // if guessesLeft = 0, returns 401 status code, which ends the game
+
+
+// restart, put request
+  // takes a game id
+  // deletes the game from games
+  // creates a new game
+  // returns new game json
 
 
 app.listen(8000, function () {
