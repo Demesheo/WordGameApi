@@ -4,6 +4,40 @@ var app = express()
 require('dotenv').config()
 
 
+var games = {}
+
+var Game = function(word){
+  this.solution = word
+  this.result = new Array(word.length)
+  this.wrongs = []
+  this.life = 10
+  this.correct = word.length
+}
+
+Game.prototype.checkGuess = function(letter){
+  if(this.wrong.indexOf(letter)){
+    return "You have already guessed this letter."
+  }
+  if(this.solution.indexOf(letter) === -1){
+    this.wrong.push(letter)
+    this.life--
+    if(this.life === 0){
+      return "Game Over!"
+    }
+    return "Wrong! This letter is not in the word."
+  }
+  for(var i = 0; i < this.solution.length; i++){
+    if(this.solution[i] === letter){
+      this.result[i] = letter
+      this.correct++
+    }
+  }
+  if(this.correct === this.solution.length){
+    return "You Win!"
+  }
+  return "Good Guess!"
+}
+
 app.get('/', function (req, res) {
   res.send('Hello World!')
 })
@@ -12,7 +46,7 @@ app.get('/', function (req, res) {
   // starts new game by getting a random word which will be challengeWord
   // returns json with string of zeros with the same length which is currentResult
 app.get('/newgame', function(req, res) {
-  unirest.get("https://wordsapiv1.p.mashape.com/words?random=true&partofspeech=noun&letterpattern=^[A-z]+$")
+  unirest.get("https://wordsapiv1.p.mashape.com/words?random=true&letterpattern=^[A-z]+$")
   .header("X-Mashape-Key", process.env.WORDS_API)
   .header("Accept", "application/json")
   .end(function (result) {
