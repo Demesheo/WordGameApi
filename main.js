@@ -11,7 +11,6 @@ var Game = function(word, id){
   this.solution = word
   this.current = new Array(word.length)
   this.wrongs = []
-  this.life = 10
   this.correct = 0
   this.result = ""
 }
@@ -22,9 +21,8 @@ Game.prototype.checkGuess = function(letter){
     return this
   }
   if(this.solution.indexOf(letter) === -1){
-    this.wrong.push(letter)
-    this.life--
-    if(this.life === 0){
+    this.wrongs.push(letter)
+    if(this.wrongs.length === 6){
       this.result = "Game Over!"
       return this
     }
@@ -62,22 +60,22 @@ app.get('/newgame', function(req, res) {
     var id = Date.now()
     games[id] = new Game(result.body.word, id)
     var clientGame = makeClientGameObj(games[id])
-    res.status(200).send(clientGame)
+    res.status(200).json(clientGame)
   });
 })
 
 app.put('/guess', function(req, res) {
   console.log("/guess req.body", req.body)
-  if(!req.body.letter) return res.status(404).send("A letter is required to be sent.")
-  if(!req.body._id) return res.status(404).send("A game id is required to be sent.")
+  if(!req.body.letter) return res.status(404).json("A letter is required to be sent.")
+  if(!req.body._id) return res.status(404).json("A game id is required to be sent.")
   game[req.body._id].checkGuess(req.body.letter)
   var clientGame = makeClientGameObj(game[req.body._id])
-  res.status(200).send(clientGame)
+  res.status(200).json(clientGame)
 })
 
 app.put('/restart', function(req, res) {
   console.log("/restart req.body", req.body)
-  if(!req.body._id) return res.status(404).send("A game id is required to be sent.")
+  if(!req.body._id) return res.status(404).json("A game id is required to be sent.")
   delete game[req.body._id]
   unirest.get("https://wordsapiv1.p.mashape.com/words?frequencymin=8&random=true")
   .header("X-Mashape-Key", process.env.WORDS_API)
@@ -87,7 +85,7 @@ app.put('/restart', function(req, res) {
     var id = Date.now()
     games[id] = new Game(result.body.word, id)
     var clientGame = makeClientGameObj(games[id])
-    res.status(200).send(clientGame)
+    res.status(200).json(clientGame)
   });
 })
 
