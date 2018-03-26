@@ -73,8 +73,8 @@ app.get('/newgame', function(req, res) {
 
 app.put('/guess', function(req, res) {
   console.log("/guess req.body", req.body)
-  if(!req.body.letter) return res.status(404).json("A letter is required to be sent.")
-  if(!req.body._id) return res.status(404).json("A game id is required to be sent.")
+  if(!req.body.letter) return res.status(404).json({error: "A letter is required to be sent."})
+  if(!req.body._id) return res.status(404).json({error:"A game id is required to be sent."})
   game[req.body._id].checkGuess(req.body.letter)
   var clientGame = makeClientGameObj(game[req.body._id])
   res.status(200).json(clientGame)
@@ -82,7 +82,7 @@ app.put('/guess', function(req, res) {
 
 app.put('/restart', function(req, res) {
   console.log("/restart req.body", req.body)
-  if(!req.body._id) return res.status(404).json("A game id is required to be sent.")
+  if(!req.body._id) return res.status(404).json({error:"A game id is required to be sent."})
   delete game[req.body._id]
   unirest.get("https://wordsapiv1.p.mashape.com/words?frequencymin=8&random=true")
   .header("X-Mashape-Key", process.env.WORDS_API)
