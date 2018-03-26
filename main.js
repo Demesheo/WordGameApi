@@ -3,6 +3,9 @@ var unirest = require('unirest')
 var app = express()
 require('dotenv').config()
 app.set('port', process.env.PORT || 8081)
+var bodyParser = require('body-parser')
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*')
   res.header('Access-Control-Allow-Credentials', true)
@@ -15,7 +18,7 @@ var games = {}
 
 var Game = function(word, id){
   this._id = id
-  this.solution = word
+  this.solution = word.toUpperCase()
   this.current = new Array(word.length)
   this.wrongs = []
   this.correct = 0
@@ -23,7 +26,7 @@ var Game = function(word, id){
 }
 
 Game.prototype.checkGuess = function(letter){
-  if(this.wrong.indexOf(letter)){
+  if(this.wrongs.indexOf(letter) > -1 || this.current.indexOf(letter) > -1){
     this.result = "You have already guessed this letter."
     return this
   }
@@ -75,15 +78,15 @@ app.put('/guess', function(req, res) {
   console.log("/guess req.body", req.body)
   if(!req.body.letter) return res.status(404).json({error: "A letter is required to be sent."})
   if(!req.body._id) return res.status(404).json({error:"A game id is required to be sent."})
-  game[req.body._id].checkGuess(req.body.letter)
-  var clientGame = makeClientGameObj(game[req.body._id])
+  games[req.body._id].checkGuess(req.body.letter)
+  var clientGame = makeClientGameObj(games[req.body._id])
   res.status(200).json(clientGame)
 })
 
 app.put('/restart', function(req, res) {
   console.log("/restart req.body", req.body)
-  if(!req.body._id) return res.status(404).json({error:"A game id is required to be sent."})
-  delete game[req.body._id]
+  if(!req.body._id) return res.status(404).json({error:"A games id is required to be sent."})
+  delete games[req.body._id]
   unirest.get("https://wordsapiv1.p.mashape.com/words?frequencymin=8&random=true")
   .header("X-Mashape-Key", process.env.WORDS_API)
   .header("Accept", "application/json")
