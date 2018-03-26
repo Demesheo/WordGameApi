@@ -22,7 +22,7 @@ var Game = function(word, id){
   this.current = new Array(word.length)
   this.wrongs = []
   this.correct = 0
-  this.result = ""
+  this.result = "Guess a letter."
 }
 
 Game.prototype.checkGuess = function(letter){
@@ -33,7 +33,7 @@ Game.prototype.checkGuess = function(letter){
   if(this.solution.indexOf(letter) === -1){
     this.wrongs.push(letter)
     if(this.wrongs.length === 6){
-      this.result = "Game Over!"
+      this.result = "You lose! The word was " + this.solution + "."
       return this
     }
     this.result = "Wrong! This letter is not in the word."
