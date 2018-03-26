@@ -54,7 +54,7 @@ app.get('/', function (req, res) {
 })
 
 app.get('/newgame', function(req, res) {
-  unirest.get("https://wordsapiv1.p.mashape.com/words?frequencymin=8&random=true")
+  unirest.get("https://wordsapiv1.p.mashape.com/words?frequencymin=7&random=true&letterPattern=^((?! ).)*$")
   .header("X-Mashape-Key", process.env.WORDS_API)
   .header("Accept", "application/json")
   .end(function (result) {
