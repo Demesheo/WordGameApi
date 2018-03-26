@@ -2,7 +2,7 @@ var express = require('express')
 var unirest = require('unirest')
 var app = express()
 require('dotenv').config()
-
+app.set('port', process.env.PORT || 8081)
 
 var games = {}
 
@@ -91,6 +91,6 @@ app.put('/restart', function(req, res) {
   });
 })
 
-app.listen(8000, function () {
-  console.log('WordGameApi listening on port 8000!')
+app.listen(app.get("port"), function () {
+  console.log('WordGameApi running')
 })
