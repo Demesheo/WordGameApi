@@ -87,7 +87,7 @@ app.put('/restart', function(req, res) {
   console.log("/restart req.body", req.body)
   if(!req.body._id) return res.status(404).json({error:"A games id is required to be sent."})
   delete games[req.body._id]
-  unirest.get("https://wordsapiv1.p.mashape.com/words?frequencymin=8&random=true")
+  unirest.get("https://wordsapiv1.p.mashape.com/words?frequencyMin=1&random=true")
   .header("X-Mashape-Key", process.env.WORDS_API)
   .header("Accept", "application/json")
   .end(function (result) {
